@@ -4,7 +4,7 @@
 
 Arrange real-time translation for Zoom, Google Meet, and Microsoft Teams with GullBot. TransGull supports 47 languages: tell your AI assistant which two or more languages you need and share your meeting link. GullBot can join now or at a scheduled time.
 
-This repository is the official plugin package for Claude, ChatGPT, Cursor, and Gemini CLI. Each client connects to the same hosted TransGull MCP server.
+This repository is the official plugin package for Claude, ChatGPT, Cursor, Gemini CLI, and VS Code. Each client connects to the same hosted TransGull MCP server.
 
 ## What it does
 
@@ -82,6 +82,14 @@ Install the TransGull plugin, or add the server to Cursor's `mcp.json` yourself.
 ```
 
 Then complete the TransGull OAuth sign-in when Cursor prompts you.
+
+### VS Code and GitHub Copilot
+
+```sh
+code --add-mcp '{"name":"transgull","type":"http","url":"https://us2.transgull.com/mcp"}'
+```
+
+Then complete the TransGull OAuth sign-in when VS Code prompts you.
 
 ## Repository layout
 
