@@ -1,0 +1,143 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "transgull-test",
+  "version": "0.2.0",
+  "description": "Arrange live translation for Zoom, Google Meet, and Microsoft Teams meetings with GullBot, now or at a scheduled time.",
+  "author": {
+    "name": "Say Wow, Inc."
+  },
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "TransGull",
+        "shortDescription": "Translate online meetings",
+        "longDescription": "Translate your online meetings on Zoom, Google Meet, and Microsoft Teams with TransGull. GullBot helps participants follow the conversation across languages.\n\nTransGull supports 47 languages. Simply tell ChatGPT which two or more languages you need for your meeting and share your meeting link. GullBot can join a meeting already underway or join at a scheduled time.\n\nGullBot appears as “TransGull Interpreter” and posts a viewing link in the meeting chat so participants can follow the live translation. Please let participants know that the meeting will be transcribed; meeting audio recordings are not retained.\n\nFrom international team meetings and customer calls to remote interviews, GullBot brings live translation to your virtual meetings and video calls. Arrange translation, check its status, get the viewing link, and update or cancel scheduled translations—all from your ChatGPT conversation.\n\nA TransGull account with sufficient personal or workspace balance is required. Translation uses that balance, and you can recharge on the TransGull website.",
+        "developerName": "Say Wow, Inc.",
+        "category": "Productivity",
+        "defaultPrompt": [
+          "帮我安排在线会议实时翻译",
+          "我正在进行在线会议，需要翻译",
+          "查看我接下来预约的会议翻译"
+        ],
+        "logo": "./assets/icon.png",
+        "composerIcon": "./assets/icon.png",
+        "websiteURL": "https://transgull.com",
+        "supportURL": "https://transgull.com/about/contactus",
+        "privacyPolicyURL": "https://transgull.com/about/privacy",
+        "termsOfServiceURL": "https://transgull.com/about/terms"
+      },
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "P1: Immediate bilingual Zoom translation. Setup: a dedicated reviewer account with sufficient balance; reviewer supplies and hosts a valid Zoom test meeting link including its passcode in the same conversation. Permit GullBot to join. Use consenting test participants only.",
+              "prompt": "请让机器鸥加入上面提供的 Zoom 测试会议，现在开始日语和中文互译。",
+              "tools_triggered": "create_meeting_translation",
+              "expected_behavior": "Call create_meeting_translation with the exact supplied meeting_url including ?pwd=, translation_mode=bidirectional, lang_one=ja, lang_two=zh (or supported Chinese alias), and a fresh idempotency_key. Omit start_at for immediate joining. Report the actual bot_status and returned share_url; do not equate joining with admitted. Reply in Chinese using 翻译鸥 and 机器鸥; mention the exact participant display name TransGull Interpreter for admission. Remind participants about transcription. Do not create another bot on a retry; reuse the same key."
+            },
+            {
+              "description": "P2: Scheduled three-language Google Meet translation. Setup: reviewer supplies a valid hosted Google Meet test link in the conversation. An authorized, funded test account is connected. Compute tomorrow from the test execution date in Asia/Tokyo. Cancel the scheduled test record after checking it.",
+              "prompt": "请安排机器鸥明天下午三点（东京时间）加入上面的 Google Meet 测试会议，自动识别发言，翻译成中文、英语和日语。",
+              "tools_triggered": "create_meeting_translation",
+              "expected_behavior": "Use translation_mode=multilingual_auto and target_languages containing zh (or supported Chinese alias), en, ja. Use the supplied meeting URL and tomorrow at 15:00:00+09:00 for start_at. Generate a fresh idempotency_key. Confirm actual returned schedule, translation_mode and target_languages. Use 机器鸥 and 翻译鸥 in the Chinese reply; Japanese/English meeting languages must not change the reply branding."
+            },
+            {
+              "description": "P3: List and inspect a translation. Setup: a meeting translation called Review Teams exists tomorrow in the connected test space. Use a future scheduled record or an active record whose state can be inspected. No unrelated real meetings in the reviewer space.",
+              "prompt": "Show my meeting translations for tomorrow in Asia/Tokyo, then tell me the status and viewing link for Review Teams.",
+              "tools_triggered": "list_meeting_translations, get_meeting_translation",
+              "expected_behavior": "List with start_date=end_date=tomorrow in timezone Asia/Tokyo. Use the returned meeting_bot_id for the matching record in get_meeting_translation. Report the actual bot_status and share_url, use TransGull and GullBot in English, and never invent a transcript or claim scheduled/joining means the bot is in the meeting."
+            },
+            {
+              "description": "P4: Reschedule a Teams translation. Setup: Review Teams from P3 is still scheduled more than 10 minutes ahead and uses a reviewer-controlled Teams link. Have its meeting_bot_id in the conversation. The user has translator permission in the connected space.",
+              "prompt": "把刚才的 Review Teams 改成明天下午四点（东京时间），会议链接和语言都不变。",
+              "tools_triggered": "update_meeting_translation",
+              "expected_behavior": "Call update_meeting_translation with the returned meeting_bot_id and start_at for tomorrow 16:00:00+09:00; omit other fields. Confirm the updated schedule only from a successful response. Do not create a new independent translation or change languages. Use 机器鸥 in the Chinese reply."
+            },
+            {
+              "description": "P5: Cancel a scheduled translation. Setup: Review Teams from P4 is still scheduled and its meeting_bot_id is available in the conversation.",
+              "prompt": "取消刚才预约的 Review Teams，不需要机器鸥参加了。",
+              "tools_triggered": "cancel_meeting_translation",
+              "expected_behavior": "Call cancel_meeting_translation with the actual meeting_bot_id from P4. Confirm cancellation only when the tool succeeds and bot_status is cancelled. Explain that 机器鸥 will not join; do not imply an in-progress meeting was ended."
+            }
+          ],
+          "negative": [
+            {
+              "description": "N1: Transcript content is outside the current tools. No meeting list/detail tool returns transcript or translation text. Explain the limitation and offer a viewing link if the user requests it; do not invoke create/update/cancel or invent transcript content.",
+              "prompt": "不用给我链接，请直接用这个插件读取会议的全部翻译正文并总结。"
+            },
+            {
+              "description": "N2: Ending an active translation is unsupported. Setup: conversation contains a just-returned get_meeting_translation result with bot_status=interpreting and a real test meeting_bot_id. Explain that GullBot must be ended in the TransGull app. Do not call cancel_meeting_translation or claim it has stopped.",
+              "prompt": "请立即结束刚才确认正在翻译的机器鸥，让它离开会议。"
+            },
+            {
+              "description": "N3: Purchases are outside the tool set. Explain that balance is added on the TransGull website; do not invoke meeting management tools, request payment-card data, or claim a charge succeeded.",
+              "prompt": "直接在聊天里替我付款，给翻译鸥账户充值。"
+            }
+          ]
+        },
+        "commerce": true,
+        "commerce_description": "Meeting translation consumes the connected TransGull personal account or workspace balance. Users purchase service credits on the TransGull website. The plugin does not process payments in ChatGPT; insufficient-balance errors provide the appropriate website recharge or workspace billing link."
+      },
+      "publication": {
+        "release_notes": "Clarifies Zoom, Google Meet, and Microsoft Teams translation support; introduces approved localized TransGull and GullBot naming; preserves TransGull Interpreter as the meeting participant name; adds scope-aware website recharge guidance for insufficient balance.",
+        "countries": [],
+        "translations": {
+          "zh-CN": {
+            "subtitle": "翻译在线会议",
+            "description": "使用翻译鸥，为 Zoom、Google Meet 和 Microsoft Teams 在线会议提供翻译。机器鸥帮助参会者跨越语言障碍，跟上交流内容。\n\n翻译鸥支持 47 种语言。只需告诉 ChatGPT 会议需要哪两种或更多语言，并提供会议链接。机器鸥可以加入正在进行的会议，也可以在预约时间入会。\n\n机器鸥以“TransGull Interpreter”的名称入会，并在会议聊天中发送观看链接，方便参会者查看实时翻译。请告知参会者，会议内容将被转写为文字，会议录音不会保留。\n\n无论是跨国团队会议、客户沟通，还是远程面试，机器鸥都能为在线会议和视频通话提供实时翻译。直接在 ChatGPT 对话中安排翻译、查看状态、获取观看链接，以及修改或取消已预约的翻译。\n\n使用前需要拥有翻译鸥账户，且个人或工作空间余额充足。翻译会消耗相应余额，你可以在翻译鸥网站充值。"
+          },
+          "zh-TW": {
+            "subtitle": "翻譯線上會議",
+            "description": "使用翻譯鷗，為 Zoom、Google Meet 和 Microsoft Teams 線上會議提供翻譯。機器鷗幫助與會者跨越語言障礙，跟上交流內容。\n\n翻譯鷗支援 47 種語言。只需告訴 ChatGPT 會議需要哪兩種或更多語言，並提供會議連結。機器鷗可以加入正在進行的會議，也可以在預約時間加入。\n\n機器鷗以「TransGull Interpreter」的名稱加入會議，並在會議聊天室中傳送觀看連結，方便與會者查看即時翻譯。請告知與會者，會議內容將轉寫為文字，會議錄音不會保留。\n\n無論是跨國團隊會議、客戶溝通，還是遠端面試，機器鷗都能為線上會議和視訊通話提供即時翻譯。直接在 ChatGPT 對話中安排翻譯、查看狀態、取得觀看連結，以及修改或取消已預約的翻譯。\n\n使用前需要擁有翻譯鷗帳戶，且個人或工作空間餘額充足。翻譯會消耗相應餘額，你可以在翻譯鷗網站儲值。"
+          },
+          "ja": {
+            "subtitle": "オンライン会議を翻訳",
+            "description": "翻訳カモメで、Zoom、Google Meet、Microsoft Teamsのオンライン会議を翻訳。カモメボットが、言語の壁を越えて参加者の会話の理解をサポートします。\n\n翻訳カモメは47言語に対応しています。会議で使う2言語以上をChatGPTに伝え、会議リンクを共有するだけ。カモメボットは進行中の会議にも、予約した時刻にも参加できます。\n\nカモメボットは「TransGull Interpreter」という名前で参加し、会議チャットに閲覧リンクを送信します。参加者はそのリンクからリアルタイムの翻訳を確認できます。会議内容が文字起こしされることを参加者にお知らせください。会議の音声録音は保存されません。\n\n海外チームとの会議や顧客との打ち合わせ、オンライン面接まで、カモメボットがオンライン会議やビデオ通話をリアルタイムで翻訳します。翻訳の手配、状況の確認、閲覧リンクの取得、予約した翻訳の変更やキャンセルまで、すべてChatGPTとの会話で行えます。\n\nご利用には翻訳カモメのアカウントと、個人またはワークスペースの十分な残高が必要です。翻訳にはその残高が使用されます。チャージは翻訳カモメのウェブサイトで行えます。"
+          },
+          "ko": {
+            "subtitle": "온라인 회의 번역",
+            "description": "번역 갈매기로 Zoom, Google Meet, Microsoft Teams 온라인 회의를 번역하세요. 갈매기봇이 참가자들이 언어의 장벽을 넘어 대화 내용을 이해할 수 있도록 도와줍니다.\n\n번역 갈매기는 47개 언어를 지원합니다. 회의에 필요한 두 가지 이상의 언어를 ChatGPT에 알려주고 회의 링크를 공유하기만 하면 됩니다. 갈매기봇은 이미 진행 중인 회의에 참여하거나 예약된 시간에 참여할 수 있습니다.\n\n갈매기봇은 “TransGull Interpreter”라는 이름으로 참여하며, 참가자들이 실시간 번역을 확인할 수 있도록 회의 채팅에 보기 링크를 보냅니다. 회의 내용이 텍스트로 변환된다는 점을 참가자들에게 알려주세요. 회의 녹음은 보관되지 않습니다.\n\n해외 팀 회의와 고객 미팅부터 화상 면접까지, 갈매기봇이 온라인 회의와 영상 통화를 실시간으로 번역합니다. 번역 요청, 상태 확인, 보기 링크 확인, 예약한 번역의 변경이나 취소까지 모두 ChatGPT 대화에서 할 수 있습니다.\n\n번역 갈매기 계정과 충분한 개인 또는 워크스페이스 잔액이 필요합니다. 번역 시 해당 잔액이 사용되며, 번역 갈매기 웹사이트에서 충전할 수 있습니다."
+          },
+          "de": {
+            "subtitle": "Online-Meetings übersetzen",
+            "description": "Übersetzen Sie Ihre Online-Meetings auf Zoom, Google Meet und Microsoft Teams mit TransGull. GullBot hilft den Teilnehmenden, dem Gespräch über Sprachgrenzen hinweg zu folgen.\n\nTransGull unterstützt 47 Sprachen. Teilen Sie ChatGPT einfach mit, welche zwei oder mehr Sprachen Sie für Ihr Meeting benötigen, und geben Sie den Meeting-Link an. GullBot kann einem laufenden Meeting beitreten oder zu einem geplanten Zeitpunkt dazukommen.\n\nGullBot tritt unter dem Namen „TransGull Interpreter“ bei und teilt im Meeting-Chat einen Link, über den die Teilnehmenden die Live-Übersetzung mitverfolgen können. Bitte informieren Sie alle Teilnehmenden darüber, dass das Meeting transkribiert wird. Audioaufzeichnungen des Meetings werden nicht aufbewahrt.\n\nOb internationale Teambesprechungen, Kundengespräche oder Bewerbungsgespräche per Video: GullBot übersetzt Ihre virtuellen Meetings und Videoanrufe in Echtzeit. Sie können Übersetzungen einrichten, ihren Status prüfen, den Anzeigelink abrufen sowie geplante Übersetzungen ändern oder stornieren – alles direkt im Gespräch mit ChatGPT.\n\nSie benötigen ein TransGull-Konto mit ausreichend Guthaben auf Ihrem persönlichen Konto oder im Workspace. Die Übersetzung wird von diesem Guthaben abgerechnet. Sie können es auf der TransGull-Website aufladen."
+          },
+          "es": {
+            "subtitle": "Traduce reuniones en línea",
+            "description": "Traduce tus reuniones en línea en Zoom, Google Meet y Microsoft Teams con TransGull. GullBot ayuda a los participantes a seguir la conversación sin barreras de idioma.\n\nTransGull admite 47 idiomas. Solo tienes que indicar a ChatGPT los dos o más idiomas que necesitas para tu reunión y compartir el enlace. GullBot puede incorporarse a una reunión en curso o unirse a la hora programada.\n\nGullBot aparece como «TransGull Interpreter» y publica un enlace en el chat de la reunión para que los participantes puedan seguir la traducción en directo. Informa a los participantes de que la reunión se transcribirá; las grabaciones de audio de la reunión no se conservan.\n\nDesde reuniones de equipos internacionales y llamadas con clientes hasta entrevistas a distancia, GullBot ofrece traducción en tiempo real para tus reuniones virtuales y videollamadas. Organiza la traducción, consulta su estado, obtén el enlace para verla y modifica o cancela traducciones programadas, todo desde tu conversación con ChatGPT.\n\nNecesitas una cuenta de TransGull con saldo suficiente en tu cuenta personal o espacio de trabajo. La traducción consume ese saldo, que puedes recargar en el sitio web de TransGull."
+          },
+          "fr": {
+            "subtitle": "Traduire les réunions en ligne",
+            "description": "Traduisez vos réunions en ligne sur Zoom, Google Meet et Microsoft Teams avec TransGull. GullBot aide les participants à suivre la conversation au-delà des barrières linguistiques.\n\nTransGull prend en charge 47 langues. Indiquez simplement à ChatGPT les deux langues ou plus dont vous avez besoin pour votre réunion et partagez le lien de la réunion. GullBot peut rejoindre une réunion en cours ou y participer à l’heure prévue.\n\nGullBot apparaît sous le nom « TransGull Interpreter » et publie dans le chat de la réunion un lien permettant aux participants de suivre la traduction en direct. Veuillez informer les participants que la réunion sera transcrite ; les enregistrements audio de la réunion ne sont pas conservés.\n\nRéunions d’équipes internationales, appels avec des clients ou entretiens à distance : GullBot traduit en temps réel vos réunions virtuelles et vos appels vidéo. Organisez une traduction, consultez son état, obtenez le lien pour la suivre, et modifiez ou annulez les traductions programmées, le tout depuis votre conversation avec ChatGPT.\n\nUn compte TransGull disposant d’un solde suffisant sur votre compte personnel ou votre espace de travail est nécessaire. La traduction est déduite de ce solde, que vous pouvez recharger sur le site web de TransGull."
+          },
+          "pt": {
+            "subtitle": "Traduza reuniões online",
+            "description": "Traduza suas reuniões online no Zoom, Google Meet e Microsoft Teams com o TransGull. O GullBot ajuda os participantes a acompanhar a conversa, superando as barreiras de idioma.\n\nO TransGull oferece suporte a 47 idiomas. Basta informar ao ChatGPT quais dois ou mais idiomas você precisa para a reunião e compartilhar o link. O GullBot pode entrar em uma reunião em andamento ou no horário agendado.\n\nO GullBot aparece como “TransGull Interpreter” e publica um link no chat da reunião para que os participantes acompanhem a tradução ao vivo. Avise os participantes de que a reunião será transcrita; as gravações de áudio da reunião não são armazenadas.\n\nDe reuniões de equipes internacionais e chamadas com clientes a entrevistas remotas, o GullBot leva tradução em tempo real às suas reuniões virtuais e videochamadas. Organize a tradução, consulte o status, obtenha o link de visualização e altere ou cancele traduções agendadas, tudo pela sua conversa com o ChatGPT.\n\nÉ necessário ter uma conta TransGull com saldo suficiente na conta pessoal ou no espaço de trabalho. A tradução consome esse saldo, e você pode recarregá-lo no site do TransGull."
+          },
+          "ru": {
+            "subtitle": "Перевод онлайн-встреч",
+            "description": "Переводите онлайн-встречи в Zoom, Google Meet и Microsoft Teams с TransGull. GullBot помогает участникам следить за разговором, преодолевая языковые барьеры.\n\nTransGull поддерживает 47 языков. Просто сообщите ChatGPT, какие два или более языка нужны для встречи, и отправьте ссылку на неё. GullBot может присоединиться к уже начавшейся встрече или подключиться в запланированное время.\n\nGullBot появляется под именем «TransGull Interpreter» и публикует в чате встречи ссылку, по которой участники могут следить за переводом в реальном времени. Пожалуйста, предупредите участников, что речь на встрече будет преобразовываться в текст; аудиозаписи встречи не сохраняются.\n\nМеждународные командные встречи, звонки клиентам, дистанционные собеседования — GullBot переводит ваши виртуальные встречи и видеозвонки в реальном времени. Настраивайте перевод, проверяйте его статус, получайте ссылку для просмотра, изменяйте или отменяйте запланированный перевод прямо в чате с ChatGPT.\n\nДля использования нужен аккаунт TransGull с достаточным балансом на личном счёте или в рабочем пространстве. Перевод оплачивается из этого баланса. Пополнить его можно на сайте TransGull."
+          },
+          "tr": {
+            "subtitle": "Çevrimiçi toplantıları çevirin",
+            "description": "Zoom, Google Meet ve Microsoft Teams'deki çevrimiçi toplantılarınızı TransGull ile çevirin. GullBot, katılımcıların dil engellerini aşarak konuşmayı takip etmelerine yardımcı olur.\n\nTransGull 47 dili destekler. Toplantınızda ihtiyaç duyduğunuz iki veya daha fazla dili ChatGPT'ye söyleyin ve toplantı bağlantısını paylaşın. GullBot devam eden bir toplantıya hemen veya planlanan saatte katılabilir.\n\nGullBot toplantıya “TransGull Interpreter” adıyla katılır ve katılımcıların canlı çeviriyi takip edebilmesi için toplantı sohbetinde bir izleme bağlantısı paylaşır. Lütfen katılımcılara toplantıdaki konuşmaların metne dönüştürüleceğini bildirin; toplantının ses kayıtları saklanmaz.\n\nUluslararası ekip toplantılarından müşteri görüşmelerine ve uzaktan mülakatlara kadar GullBot, sanal toplantılarınızı ve görüntülü görüşmelerinizi gerçek zamanlı çevirir. ChatGPT sohbetinizden çeviri ayarlayabilir, durumunu kontrol edebilir, izleme bağlantısını alabilir ve planlanmış çevirileri değiştirebilir veya iptal edebilirsiniz.\n\nKişisel hesabınızda veya çalışma alanınızda yeterli bakiye bulunan bir TransGull hesabı gerekir. Çeviri bu bakiyeden karşılanır; TransGull web sitesinden bakiye yükleyebilirsiniz."
+          },
+          "id": {
+            "subtitle": "Terjemahkan rapat online",
+            "description": "Terjemahkan rapat online Anda di Zoom, Google Meet, dan Microsoft Teams dengan TransGull. GullBot membantu peserta mengikuti percakapan tanpa terhalang perbedaan bahasa.\n\nTransGull mendukung 47 bahasa. Cukup beri tahu ChatGPT dua bahasa atau lebih yang Anda perlukan untuk rapat, lalu bagikan tautan rapatnya. GullBot dapat bergabung ke rapat yang sedang berlangsung atau pada waktu yang dijadwalkan.\n\nGullBot hadir dengan nama “TransGull Interpreter” dan mengirimkan tautan tampilan terjemahan di chat rapat agar peserta dapat mengikuti terjemahan secara langsung. Beri tahu peserta bahwa percakapan dalam rapat akan ditranskripsikan; rekaman audio rapat tidak disimpan.\n\nDari rapat tim internasional dan panggilan dengan pelanggan hingga wawancara jarak jauh, GullBot menghadirkan terjemahan langsung untuk rapat virtual dan panggilan video Anda. Atur terjemahan, periksa statusnya, dapatkan tautan untuk melihatnya, serta ubah atau batalkan terjemahan terjadwal, semuanya melalui percakapan dengan ChatGPT.\n\nAnda memerlukan akun TransGull dengan saldo pribadi atau ruang kerja yang mencukupi. Terjemahan menggunakan saldo tersebut, dan Anda dapat mengisinya kembali di situs web TransGull."
+          },
+          "ms": {
+            "subtitle": "Terjemah mesyuarat online",
+            "description": "Terjemah mesyuarat dalam talian anda di Zoom, Google Meet dan Microsoft Teams dengan TransGull. GullBot membantu peserta mengikuti perbualan merentas bahasa.\n\nTransGull menyokong 47 bahasa. Beritahu ChatGPT dua atau lebih bahasa yang anda perlukan untuk mesyuarat, kemudian kongsikan pautan mesyuarat anda. GullBot boleh menyertai mesyuarat yang sedang berlangsung atau pada waktu yang dijadualkan.\n\nGullBot muncul dengan nama “TransGull Interpreter” dan menghantar pautan paparan dalam sembang mesyuarat supaya peserta dapat mengikuti terjemahan secara langsung. Sila maklumkan kepada peserta bahawa mesyuarat akan ditranskripsikan; rakaman audio mesyuarat tidak disimpan.\n\nDaripada mesyuarat pasukan antarabangsa dan panggilan pelanggan hingga temu duga jarak jauh, GullBot menyediakan terjemahan masa nyata untuk mesyuarat maya dan panggilan video anda. Aturkan terjemahan, semak statusnya, dapatkan pautan paparan serta ubah atau batalkan terjemahan berjadual, semuanya melalui perbualan anda dengan ChatGPT.\n\nAnda memerlukan akaun TransGull dengan baki peribadi atau ruang kerja yang mencukupi. Terjemahan menggunakan baki tersebut, dan anda boleh menambah nilai di laman web TransGull."
+          },
+          "vi": {
+            "subtitle": "Dịch cuộc họp trực tuyến",
+            "description": "Dịch các cuộc họp trực tuyến trên Zoom, Google Meet và Microsoft Teams với TransGull. GullBot giúp người tham gia theo dõi cuộc trò chuyện vượt qua rào cản ngôn ngữ.\n\nTransGull hỗ trợ 47 ngôn ngữ. Chỉ cần cho ChatGPT biết hai hoặc nhiều ngôn ngữ bạn cần cho cuộc họp và chia sẻ liên kết cuộc họp. GullBot có thể tham gia cuộc họp đang diễn ra hoặc vào thời gian đã lên lịch.\n\nGullBot xuất hiện với tên “TransGull Interpreter” và gửi liên kết xem bản dịch vào phần trò chuyện của cuộc họp để người tham gia có thể theo dõi bản dịch trực tiếp. Vui lòng thông báo cho người tham gia rằng nội dung cuộc họp sẽ được chuyển thành văn bản; bản ghi âm cuộc họp sẽ không được lưu giữ.\n\nTừ các cuộc họp nhóm quốc tế và cuộc gọi với khách hàng đến phỏng vấn từ xa, GullBot mang tính năng dịch theo thời gian thực đến các cuộc họp trực tuyến và cuộc gọi video của bạn. Sắp xếp phiên dịch, kiểm tra trạng thái, lấy liên kết xem bản dịch, cũng như thay đổi hoặc hủy các phiên dịch đã lên lịch — tất cả ngay trong cuộc trò chuyện với ChatGPT.\n\nBạn cần có tài khoản TransGull với đủ số dư cá nhân hoặc không gian làm việc. Tính năng dịch sử dụng số dư này, và bạn có thể nạp thêm trên trang web TransGull."
+          }
+        }
+      }
+    }
+  },
+  "license": "Apache-2.0",
+  "repository": "https://github.com/TransGull/transgull-plugin"
+}
