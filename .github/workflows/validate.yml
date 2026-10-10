@@ -20,9 +20,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      # Pinned so a new validator release can't fail CI without a change here;
-      # bump it when upgrading. Checks the marketplace and the plugin manifest.
+      # Always the latest release, so new validator rules surface here first.
+      # Checks the marketplace and the plugin manifest.
       - name: Validate Claude plugin
         run: |
-          npx -y @anthropic-ai/claude-code@2.1.296 plugin validate .
-          npx -y @anthropic-ai/claude-code@2.1.296 plugin validate .claude-plugin/plugin.json
+          npx -y @anthropic-ai/claude-code@latest plugin validate .
+          npx -y @anthropic-ai/claude-code@latest plugin validate .claude-plugin/plugin.json
