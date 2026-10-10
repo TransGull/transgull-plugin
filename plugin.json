@@ -138,6 +138,6 @@
       }
     }
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "repository": "https://github.com/TransGull/transgull-plugin"
 }

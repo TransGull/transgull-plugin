@@ -43,4 +43,4 @@ Before submission, verify the production OAuth connection and meeting workflows,
 
 ## License
 
-Plugin configuration and documentation are licensed under [Apache-2.0](LICENSE). Logo artwork and trademarks have separate terms in [TRADEMARKS.md](TRADEMARKS.md). This license does not cover the hosted TransGull service or its backend implementation.
+Plugin configuration and documentation are licensed under [MIT](LICENSE). Logo artwork and trademarks have separate terms in [TRADEMARKS.md](TRADEMARKS.md). This license does not cover the hosted TransGull service or its backend implementation.
