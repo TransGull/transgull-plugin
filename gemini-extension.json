@@ -4,7 +4,11 @@
   "description": "Arrange live translation for Zoom, Google Meet, and Microsoft Teams meetings with GullBot, now or at a scheduled time.",
   "mcpServers": {
     "transgull": {
-      "httpUrl": "https://us2.transgull.com/mcp"
+      "httpUrl": "https://us2.transgull.com/mcp",
+      "oauth": {
+        "enabled": true,
+        "clientId": "transgull-gemini-cli"
+      }
     }
   }
 }

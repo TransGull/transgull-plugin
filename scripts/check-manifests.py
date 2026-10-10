@@ -32,6 +32,7 @@ MCP_FILES = {
     # path: (key holding the URL, expected transport type or None)
     "mcp.json": ("url", "streamable-http"),
     ".mcp.json": ("url", "http"),
+    ".cursor-plugin/plugin.json": ("url", None),
     "gemini-extension.json": ("httpUrl", None),
 }
 

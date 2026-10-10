@@ -66,17 +66,22 @@ gemini extensions install https://github.com/TransGull/transgull-plugin
 
 Then run `/mcp auth transgull` to sign in.
 
-### Cursor and other MCP clients
+### Cursor
 
-Add a remote MCP server with the URL `https://us2.transgull.com/mcp` (Streamable HTTP) and complete the TransGull OAuth sign-in. For example, in Cursor's `mcp.json`:
+Install the TransGull plugin, or add the server to Cursor's `mcp.json` yourself. Cursor must send the TransGull client ID shown below:
 
 ```json
 {
   "mcpServers": {
-    "transgull": { "url": "https://us2.transgull.com/mcp" }
+    "transgull": {
+      "url": "https://us2.transgull.com/mcp",
+      "auth": { "CLIENT_ID": "transgull-cursor" }
+    }
   }
 }
 ```
+
+Then complete the TransGull OAuth sign-in when Cursor prompts you.
 
 ## Repository layout
 
@@ -84,8 +89,8 @@ Add a remote MCP server with the URL `https://us2.transgull.com/mcp` (Streamable
 | --- | --- |
 | `plugin.json`, `mcp.json` | [Agent Plugins](https://agent-plugins.org) clients such as ChatGPT/Codex; ChatGPT listing and review data live in `extensions["com.openai"]` |
 | `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.mcp.json` | Claude Code, Claude web and desktop |
-| `.cursor-plugin/plugin.json` | Cursor (uses `.mcp.json`) |
-| `gemini-extension.json` | Gemini CLI |
+| `.cursor-plugin/plugin.json` | Cursor, with the MCP server inline and the `transgull-cursor` OAuth client ID |
+| `gemini-extension.json` | Gemini CLI, with the `transgull-gemini-cli` OAuth client ID |
 | `assets/icon.png` | 1024 × 1024 product icon shared by all manifests |
 | `scripts/check-manifests.py` | Checks that every manifest uses the same version and MCP endpoint |
 

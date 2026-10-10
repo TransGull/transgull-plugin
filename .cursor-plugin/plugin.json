@@ -10,5 +10,12 @@
   "license": "Apache-2.0",
   "keywords": ["translation", "live-translation", "meeting-translation", "interpreter", "multilingual", "subtitles", "captions", "online-meetings", "zoom", "google-meet", "microsoft-teams"],
   "logo": "assets/icon.png",
-  "mcpServers": "./.mcp.json"
+  "mcpServers": {
+    "transgull": {
+      "url": "https://us2.transgull.com/mcp",
+      "auth": {
+        "CLIENT_ID": "transgull-cursor"
+      }
+    }
+  }
 }
