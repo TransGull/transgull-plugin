@@ -1,0 +1,28 @@
+name: Validate manifests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check version and MCP endpoint consistency
+        run: python3 scripts/check-manifests.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      # Always the latest release, so new validator rules surface here first.
+      # Checks the marketplace and the plugin manifest.
+      - name: Validate Claude plugin
+        run: |
+          npx -y @anthropic-ai/claude-code@latest plugin validate .
+          npx -y @anthropic-ai/claude-code@latest plugin validate .claude-plugin/plugin.json

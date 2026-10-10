@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "transgull": {
+      "type": "http",
+      "url": "https://us2.transgull.com/mcp"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-  "name": "transgull-test",
+  "name": "transgull",
   "version": "0.2.0",
   "description": "Arrange live translation for Zoom, Google Meet, and Microsoft Teams meetings with GullBot, now or at a scheduled time.",
   "author": {
@@ -15,9 +15,9 @@
         "developerName": "Say Wow, Inc.",
         "category": "Productivity",
         "defaultPrompt": [
-          "帮我安排在线会议实时翻译",
-          "我正在进行在线会议，需要翻译",
-          "查看我接下来预约的会议翻译"
+          "Help me arrange live translation for an online meeting",
+          "I'm in an online meeting and need translation",
+          "Show my upcoming scheduled meeting translations"
         ],
         "logo": "./assets/icon.png",
         "composerIcon": "./assets/icon.png",
@@ -31,15 +31,15 @@
           "positive": [
             {
               "description": "P1: Immediate bilingual Zoom translation. Setup: a dedicated reviewer account with sufficient balance; reviewer supplies and hosts a valid Zoom test meeting link including its passcode in the same conversation. Permit GullBot to join. Use consenting test participants only.",
-              "prompt": "请让机器鸥加入上面提供的 Zoom 测试会议，现在开始日语和中文互译。",
+              "prompt": "Have GullBot join the Zoom test meeting provided above and start two-way translation between Japanese and English now.",
               "tools_triggered": "create_meeting_translation",
-              "expected_behavior": "Call create_meeting_translation with the exact supplied meeting_url including ?pwd=, translation_mode=bidirectional, lang_one=ja, lang_two=zh (or supported Chinese alias), and a fresh idempotency_key. Omit start_at for immediate joining. Report the actual bot_status and returned share_url; do not equate joining with admitted. Reply in Chinese using 翻译鸥 and 机器鸥; mention the exact participant display name TransGull Interpreter for admission. Remind participants about transcription. Do not create another bot on a retry; reuse the same key."
+              "expected_behavior": "Call create_meeting_translation with the exact supplied meeting_url including ?pwd=, translation_mode=bidirectional, lang_one=ja, lang_two=en, and a fresh idempotency_key. Omit start_at for immediate joining. Report the actual bot_status and returned share_url; do not equate joining with admitted. Reply in English using TransGull and GullBot; mention the exact participant display name TransGull Interpreter for admission. Remind participants about transcription. Do not create another bot on a retry; reuse the same key."
             },
             {
               "description": "P2: Scheduled three-language Google Meet translation. Setup: reviewer supplies a valid hosted Google Meet test link in the conversation. An authorized, funded test account is connected. Compute tomorrow from the test execution date in Asia/Tokyo. Cancel the scheduled test record after checking it.",
-              "prompt": "请安排机器鸥明天下午三点（东京时间）加入上面的 Google Meet 测试会议，自动识别发言，翻译成中文、英语和日语。",
+              "prompt": "Schedule GullBot to join the Google Meet test meeting provided above tomorrow at 3 PM Tokyo time. Automatically detect the spoken language and translate into Japanese, English, and French.",
               "tools_triggered": "create_meeting_translation",
-              "expected_behavior": "Use translation_mode=multilingual_auto and target_languages containing zh (or supported Chinese alias), en, ja. Use the supplied meeting URL and tomorrow at 15:00:00+09:00 for start_at. Generate a fresh idempotency_key. Confirm actual returned schedule, translation_mode and target_languages. Use 机器鸥 and 翻译鸥 in the Chinese reply; Japanese/English meeting languages must not change the reply branding."
+              "expected_behavior": "Use translation_mode=multilingual_auto and target_languages containing ja, en, fr. Use the supplied meeting URL and tomorrow at 15:00:00+09:00 for start_at. Generate a fresh idempotency_key. Confirm actual returned schedule, translation_mode and target_languages. Use TransGull and GullBot in the English reply; the selected meeting languages must not change the reply branding."
             },
             {
               "description": "P3: List and inspect a translation. Setup: a meeting translation called Review Teams exists tomorrow in the connected test space. Use a future scheduled record or an active record whose state can be inspected. No unrelated real meetings in the reviewer space.",
@@ -49,29 +49,29 @@
             },
             {
               "description": "P4: Reschedule a Teams translation. Setup: Review Teams from P3 is still scheduled more than 10 minutes ahead and uses a reviewer-controlled Teams link. Have its meeting_bot_id in the conversation. The user has translator permission in the connected space.",
-              "prompt": "把刚才的 Review Teams 改成明天下午四点（东京时间），会议链接和语言都不变。",
+              "prompt": "Reschedule Review Teams to tomorrow at 4 PM Tokyo time. Keep the meeting link and languages unchanged.",
               "tools_triggered": "update_meeting_translation",
-              "expected_behavior": "Call update_meeting_translation with the returned meeting_bot_id and start_at for tomorrow 16:00:00+09:00; omit other fields. Confirm the updated schedule only from a successful response. Do not create a new independent translation or change languages. Use 机器鸥 in the Chinese reply."
+              "expected_behavior": "Call update_meeting_translation with the returned meeting_bot_id and start_at for tomorrow 16:00:00+09:00; omit other fields. Confirm the updated schedule only from a successful response. Do not create a new independent translation or change languages. Use GullBot in the English reply."
             },
             {
               "description": "P5: Cancel a scheduled translation. Setup: Review Teams from P4 is still scheduled and its meeting_bot_id is available in the conversation.",
-              "prompt": "取消刚才预约的 Review Teams，不需要机器鸥参加了。",
+              "prompt": "Cancel the scheduled Review Teams translation. GullBot no longer needs to join.",
               "tools_triggered": "cancel_meeting_translation",
-              "expected_behavior": "Call cancel_meeting_translation with the actual meeting_bot_id from P4. Confirm cancellation only when the tool succeeds and bot_status is cancelled. Explain that 机器鸥 will not join; do not imply an in-progress meeting was ended."
+              "expected_behavior": "Call cancel_meeting_translation with the actual meeting_bot_id from P4. Confirm cancellation only when the tool succeeds and bot_status is cancelled. Explain that GullBot will not join; do not imply an in-progress meeting was ended."
             }
           ],
           "negative": [
             {
               "description": "N1: Transcript content is outside the current tools. No meeting list/detail tool returns transcript or translation text. Explain the limitation and offer a viewing link if the user requests it; do not invoke create/update/cancel or invent transcript content.",
-              "prompt": "不用给我链接，请直接用这个插件读取会议的全部翻译正文并总结。"
+              "prompt": "Read the full translation text from the meeting and summarize it directly using this plugin, without sending me a link."
             },
             {
               "description": "N2: Ending an active translation is unsupported. Setup: conversation contains a just-returned get_meeting_translation result with bot_status=interpreting and a real test meeting_bot_id. Explain that GullBot must be ended in the TransGull app. Do not call cancel_meeting_translation or claim it has stopped.",
-              "prompt": "请立即结束刚才确认正在翻译的机器鸥，让它离开会议。"
+              "prompt": "Stop GullBot immediately and have it leave the meeting you just confirmed it is translating."
             },
             {
               "description": "N3: Purchases are outside the tool set. Explain that balance is added on the TransGull website; do not invoke meeting management tools, request payment-card data, or claim a charge succeeded.",
-              "prompt": "直接在聊天里替我付款，给翻译鸥账户充值。"
+              "prompt": "Pay on my behalf and top up my TransGull balance directly in this chat."
             }
           ]
         },
@@ -139,5 +139,6 @@
     }
   },
   "license": "Apache-2.0",
-  "repository": "https://github.com/TransGull/transgull-plugin"
+  "repository": "https://github.com/TransGull/transgull-plugin",
+  "keywords": ["translation", "live-translation", "meeting-translation", "interpreter", "multilingual", "subtitles", "captions", "online-meetings", "zoom", "google-meet", "microsoft-teams"]
 }
