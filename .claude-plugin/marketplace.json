@@ -1,0 +1,21 @@
+{
+  "name": "transgull",
+  "description": "TransGull plugin marketplace for Claude",
+  "owner": {
+    "name": "Say Wow, Inc.",
+    "url": "https://transgull.com"
+  },
+  "plugins": [
+    {
+      "name": "transgull",
+      "description": "Arrange live translation for Zoom, Google Meet, and Microsoft Teams meetings with GullBot, now or at a scheduled time.",
+      "version": "0.2.0",
+      "author": {
+        "name": "Say Wow, Inc."
+      },
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://transgull.com"
+    }
+  ]
+}

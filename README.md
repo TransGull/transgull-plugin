@@ -2,37 +2,110 @@
 
 **Translate online meetings**
 
-Arrange real-time translation for Zoom, Google Meet, and Microsoft Teams with GullBot. TransGull supports 47 languages: tell ChatGPT which two or more languages you need and share your meeting link. GullBot can join now or at a scheduled time.
+Arrange real-time translation for Zoom, Google Meet, and Microsoft Teams with GullBot. TransGull supports 47 languages: tell your AI assistant which two or more languages you need and share your meeting link. GullBot can join now or at a scheduled time.
 
-A TransGull account with sufficient personal or workspace balance is required. Translation consumes that balance; recharge on the [TransGull website](https://transgull.com). Meeting audio recordings are not retained.
+This repository is the official plugin package for Claude, ChatGPT, Cursor, and Gemini CLI. Each client connects to the same hosted TransGull MCP server.
 
-## Connection
+## What it does
 
-- Remote MCP endpoint: `https://us2.transgull.com/mcp`
-- Transport: Streamable HTTP
-- Authentication: OAuth through the client authorization flow
+After you sign in to TransGull, your assistant can use these tools:
 
-For clients supporting remote MCP, add the endpoint above and complete the TransGull OAuth sign-in. This repository does not contain credentials or an MCP server implementation. Available tools and their parameter descriptions are provided by the remote server.
+| Tool | What it does |
+| --- | --- |
+| `create_meeting_translation` | Sends GullBot to a meeting now or at a scheduled time, with two-language or multilingual translation |
+| `list_meeting_translations` | Lists your meeting translations for a date range |
+| `get_meeting_translation` | Shows the status and viewing link of one translation |
+| `update_meeting_translation` | Changes a scheduled translation, such as its start time |
+| `cancel_meeting_translation` | Cancels a scheduled translation |
 
-## Package contents
+Example prompts:
 
-- `plugin.json`: plugin metadata, English listing, 13 localized listings, conversation starters, and review scenarios.
-- `mcp.json`: remote MCP connection configuration.
-- `assets/icon.png`: 1024 × 1024 product icon.
-- `LICENSE`, `NOTICE`, `TRADEMARKS.md`: license and brand asset terms.
+- "Have GullBot join the Zoom meeting above now and translate between Japanese and Chinese."
+- "Schedule GullBot for my Google Meet tomorrow at 3 PM Tokyo time, translating into Chinese, English, and Japanese."
+- "Show my meeting translations for tomorrow and give me the viewing link for Review Teams."
 
-The existing internal plugin identifier `transgull-test` is preserved. The current `0.2.0` package is a review draft; inclusion of review scenarios does not mean they have passed production testing or marketplace review. This repository is the maintained source for subsequent package changes.
+The tools can't read or summarize transcript text, stop a translation that is already running (end it in the TransGull app), or take payments.
 
-## Create a package
+## Account and billing
 
-From a committed checkout, create a ZIP containing the plugin files and license notices:
+A TransGull account with sufficient personal or workspace balance is required. Each translation consumes that balance. You add balance on the [TransGull website](https://transgull.com); the plugin never handles payment details.
+
+## Data and privacy
+
+- **Where data goes:** all requests go to `https://us2.transgull.com/mcp`, operated by Say Wow, Inc. The plugin doesn't contact any other service.
+- **What is sent:** the meeting link (including any passcode in it), the languages you choose, the scheduled time, and the IDs of translations you manage.
+- **In the meeting:** GullBot joins as **TransGull Interpreter**, transcribes the conversation to produce the translation, and posts a viewing link in the meeting chat. Meeting audio recordings are not retained. Tell participants that the meeting will be transcribed.
+- **Sign-in:** OAuth through TransGull. No API keys or passwords are stored in this repository or in your client configuration.
+
+See the [privacy policy](https://transgull.com/about/privacy) for collection, use, and retention details.
+
+## Install
+
+### Claude Code
+
+```sh
+claude plugin marketplace add TransGull/transgull-plugin
+claude plugin install transgull@transgull
+```
+
+Then run `/mcp` in a session and sign in to TransGull.
+
+### Claude (web and desktop)
+
+Open **Customize → Plugins → Add marketplace**, enter `https://github.com/TransGull/transgull-plugin`, install **TransGull**, and connect it on the plugin's **Connectors** tab.
+
+### ChatGPT
+
+Once TransGull is listed in the ChatGPT apps directory, install it there and sign in when prompted.
+
+### Gemini CLI
+
+```sh
+gemini extensions install https://github.com/TransGull/transgull-plugin
+```
+
+Then run `/mcp auth transgull` to sign in.
+
+### Cursor and other MCP clients
+
+Add a remote MCP server with the URL `https://us2.transgull.com/mcp` (Streamable HTTP) and complete the TransGull OAuth sign-in. For example, in Cursor's `mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "transgull": { "url": "https://us2.transgull.com/mcp" }
+  }
+}
+```
+
+## Repository layout
+
+| Path | Used by |
+| --- | --- |
+| `plugin.json`, `mcp.json` | [Agent Plugins](https://agent-plugins.org) clients such as ChatGPT/Codex; ChatGPT listing and review data live in `extensions["com.openai"]` |
+| `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.mcp.json` | Claude Code, Claude web and desktop |
+| `.cursor-plugin/plugin.json` | Cursor (uses `.mcp.json`) |
+| `gemini-extension.json` | Gemini CLI |
+| `assets/icon.png` | 1024 × 1024 product icon shared by all manifests |
+| `scripts/check-manifests.py` | Checks that every manifest uses the same version and MCP endpoint |
+
+This repository contains no MCP server implementation and no credentials. Tool definitions come from the hosted server.
+
+When you release a new version, update `version` in every manifest, then run:
+
+```sh
+python3 scripts/check-manifests.py
+claude plugin validate . --strict
+```
+
+### ChatGPT package
+
+From a committed checkout:
 
 ```sh
 mkdir -p dist
-git archive --format=zip --prefix=transgull-test/ --output=dist/transgull-test-0.2.0.zip HEAD plugin.json mcp.json assets/icon.png LICENSE NOTICE TRADEMARKS.md README.md
+git archive --format=zip --prefix=transgull/ --output=dist/transgull-0.2.0.zip HEAD plugin.json mcp.json assets/icon.png LICENSE NOTICE TRADEMARKS.md README.md
 ```
-
-Before submission, verify the production OAuth connection and meeting workflows, complete review evidence, and check the target marketplace's current packaging requirements. This bundle has not been adapted or validated as a Claude-specific plugin package.
 
 ## Support and policies
 
@@ -40,6 +113,7 @@ Before submission, verify the production OAuth connection and meeting workflows,
 - [Support](https://transgull.com/about/contactus)
 - [Privacy policy](https://transgull.com/about/privacy)
 - [Terms of service](https://transgull.com/about/terms)
+- [Security policy](SECURITY.md)
 
 ## License
 
