@@ -22,5 +22,4 @@ The MCP server is a hosted service at `us2.transgull.com`, operated by Say Wow, 
 ## Using TransGull safely
 
 - Connect only through the official endpoint `https://us2.transgull.com/mcp` and sign in on the TransGull OAuth page.
-- Share a meeting link only for meetings you are allowed to have translated, and tell participants that the meeting will be transcribed.
 - Review what the assistant is about to do before it creates, changes, or cancels a translation, because these actions use your account balance.
