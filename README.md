@@ -102,23 +102,7 @@ Then complete the TransGull OAuth sign-in when VS Code prompts you.
 | `assets/icon.png` | 1024 × 1024 product icon shared by all manifests |
 | `scripts/check-manifests.py` | Checks that every manifest uses the same version and MCP endpoint |
 
-This repository contains no MCP server implementation and no credentials. Tool definitions come from the hosted server.
-
-When you release a new version, update `version` in every manifest, then run:
-
-```sh
-python3 scripts/check-manifests.py
-claude plugin validate . --strict
-```
-
-### ChatGPT package
-
-From a committed checkout:
-
-```sh
-mkdir -p dist
-git archive --format=zip --prefix=transgull/ --output=dist/transgull-0.2.0.zip HEAD plugin.json mcp.json assets/icon.png LICENSE NOTICE TRADEMARKS.md README.md
-```
+This repository contains no MCP server implementation and no credentials. Tool definitions come from the hosted server. Maintainers: see [CONTRIBUTING.md](CONTRIBUTING.md) for releases and packaging.
 
 ## Support and policies
 
