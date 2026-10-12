@@ -18,7 +18,7 @@ After you sign in to TransGull, your assistant can use these tools:
 | `update_meeting_translation` | Changes a scheduled translation, such as its start time |
 | `cancel_meeting_translation` | Cancels a scheduled translation |
 
-The tools can't read or summarize transcript text, stop a translation that is already running (end it in the TransGull app), or take payments.
+The tools can't read or summarize transcript text, stop a translation that is already running (end the meeting, or use the TransGull app), or take payments.
 
 ## Before you start
 
@@ -114,7 +114,7 @@ GullBot leaves on its own when the meeting ends. To book ahead, replace "now" wi
 - **Admit GullBot** from the waiting room, or translation can't start.
 - **Tell participants** that the meeting will be transcribed for translation. Meeting audio recordings are not retained.
 - **Only bookings that haven't started** can be changed or cancelled.
-- **To end a translation early,** use the TransGull app. Your assistant can't remove GullBot once it has joined.
+- **To end a translation early,** end the meeting in Zoom, Google Meet, or Microsoft Teams; the translation ends with it. You can also stop it in the TransGull app. Your assistant can't remove GullBot once it has joined.
 - **If your balance runs low,** your assistant tells you and shares a link to add balance on the TransGull website.
 
 ## Data and privacy
