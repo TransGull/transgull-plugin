@@ -91,19 +91,6 @@ code --add-mcp '{"name":"transgull","type":"http","url":"https://us2.transgull.c
 
 Then complete the TransGull OAuth sign-in when VS Code prompts you.
 
-## Repository layout
-
-| Path | Used by |
-| --- | --- |
-| `plugin.json`, `mcp.json` | [Agent Plugins](https://agent-plugins.org) clients such as ChatGPT/Codex; ChatGPT listing and review data live in `extensions["com.openai"]` |
-| `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.mcp.json` | Claude Code, Claude web and desktop |
-| `.cursor-plugin/plugin.json` | Cursor, with the MCP server inline and the `transgull-cursor` OAuth client ID |
-| `gemini-extension.json` | Gemini CLI, with the `transgull-gemini-cli` OAuth client ID |
-| `assets/icon.png` | 1024 × 1024 product icon shared by all manifests |
-| `scripts/check-manifests.py` | Checks that every manifest uses the same version and MCP endpoint |
-
-This repository contains no MCP server implementation and no credentials. Tool definitions come from the hosted server. Maintainers: see [CONTRIBUTING.md](CONTRIBUTING.md) for releases and packaging.
-
 ## Support and policies
 
 - [Website](https://transgull.com)
