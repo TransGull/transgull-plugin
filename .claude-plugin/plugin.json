@@ -1,7 +1,7 @@
 {
   "name": "transgull",
   "displayName": "TransGull",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Arrange live translation for Zoom, Google Meet, and Microsoft Teams meetings with GullBot, now or at a scheduled time.",
   "author": {
     "name": "Say Wow, Inc.",
