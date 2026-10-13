@@ -41,7 +41,7 @@ To install the full plugin instead, open **Customize → Plugins → Add marketp
 
 ### ChatGPT
 
-Once TransGull is listed in the ChatGPT apps directory, install it there and sign in when prompted.
+Open [TransGull in ChatGPT](https://chatgpt.com/plugins/plugin_asdk_app_6accba52d3f88191a65ae16ad6c2d95e), add it, and sign in to TransGull when prompted.
 
 ### Claude Code
 
