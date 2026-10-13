@@ -30,12 +30,16 @@ Gemini CLI and Cursor sign in with the OAuth client IDs `transgull-gemini-cli` a
 
 ## Build the ChatGPT package
 
-ChatGPT takes a ZIP upload. From a committed checkout:
+ChatGPT takes a ZIP upload, and its MCP review needs a walkthrough video URL in `extensions.com.openai.review.demo_recording_url`. That URL stays out of this public repository: put it in `.chatgpt-review.local.json`, which git ignores:
 
-```sh
-VERSION=$(python3 -c 'import json; print(json.load(open("plugin.json"))["version"])')
-mkdir -p dist
-git archive --format=zip --prefix=transgull/ --output="dist/transgull-$VERSION.zip" HEAD plugin.json mcp.json assets/icon.png LICENSE NOTICE TRADEMARKS.md README.md
+```json
+{"demo_recording_url": "https://..."}
 ```
 
-`dist/` is ignored by git.
+Then build the ZIP from a committed ref:
+
+```sh
+python3 scripts/package-chatgpt.py
+```
+
+The script packages `HEAD` (or `--ref <branch or commit>`) and writes the URL only into the `plugin.json` inside `dist/transgull-<version>.zip`. `dist/` is ignored by git.
