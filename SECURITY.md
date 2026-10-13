@@ -4,7 +4,7 @@
 
 **Please don't open a public GitHub issue for a security problem.** Public issues are visible to everyone and can put users at risk before a fix is ready.
 
-Report it privately by email to [security@transgull.com](mailto:security@transgull.com). A good report includes:
+Report it privately through [GitHub private vulnerability reporting](https://github.com/TransGull/transgull-plugin/security/advisories/new) or by email to [security@transgull.com](mailto:security@transgull.com). A good report includes:
 
 - What you found and why you think it's a security issue
 - Steps to reproduce, or a proof of concept
