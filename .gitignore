@@ -3,3 +3,4 @@
 .env.*
 *.log
 dist/
+.chatgpt-review.local.json
