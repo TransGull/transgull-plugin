@@ -18,28 +18,30 @@ After you sign in to TransGull, your assistant can use these tools:
 | `update_meeting_translation` | Changes a scheduled translation, such as its start time |
 | `cancel_meeting_translation` | Cancels a scheduled translation |
 
-Example prompts:
+The tools can't read or summarize transcript text, stop a translation that is already running (end the meeting, or use the TransGull app), or take payments.
 
-- "Have GullBot join the Zoom meeting above now and translate between Japanese and Chinese."
-- "Schedule GullBot for my Google Meet tomorrow at 3 PM Tokyo time, translating into Chinese, English, and Japanese."
-- "Show my meeting translations for tomorrow and give me the viewing link for Review Teams."
+## Before you start
 
-The tools can't read or summarize transcript text, stop a translation that is already running (end it in the TransGull app), or take payments.
+You need three things:
 
-## Account and billing
-
-A TransGull account with sufficient personal or workspace balance is required. Each translation consumes that balance. You add balance on the [TransGull website](https://transgull.com); the plugin never handles payment details.
-
-## Data and privacy
-
-- **Where data goes:** all requests go to `https://us2.transgull.com/mcp`, operated by Say Wow, Inc. The plugin doesn't contact any other service.
-- **What is sent:** the meeting link (including any passcode in it), the languages you choose, the scheduled time, and the IDs of translations you manage.
-- **In the meeting:** GullBot joins as **TransGull Interpreter**, transcribes the conversation to produce the translation, and posts a viewing link in the meeting chat. Meeting audio recordings are not retained. Tell participants that the meeting will be transcribed.
-- **Sign-in:** OAuth through TransGull. No API keys or passwords are stored in this repository or in your client configuration.
-
-See the [privacy policy](https://transgull.com/about/privacy) for collection, use, and retention details.
+1. **A TransGull account.** Sign up at [transgull.com](https://transgull.com) if you don't have one.
+2. **Enough balance.** Each translation uses your personal or workspace balance. You add balance on the TransGull website; the plugin never takes payments or handles payment details.
+3. **A meeting link** for Zoom, Google Meet, or Microsoft Teams. For Zoom, copy the full invite link and keep the passcode part (`?pwd=`), or GullBot can't join.
 
 ## Install
+
+### Claude (web and desktop)
+
+1. Open **Settings → Connectors** and select **Add custom connector**.
+2. Enter the name `TransGull` and the URL `https://us2.transgull.com/mcp`.
+3. Keep the default options and select **Add**.
+4. Sign in to TransGull, choose your personal or workspace space, and approve.
+
+To install the full plugin instead, open **Customize → Plugins → Add marketplace**, enter `https://github.com/TransGull/transgull-plugin`, install **TransGull**, and connect it on the plugin's **Connectors** tab.
+
+### ChatGPT
+
+Once TransGull is listed in the ChatGPT apps directory, install it there and sign in when prompted.
 
 ### Claude Code
 
@@ -49,14 +51,6 @@ claude plugin install transgull@transgull
 ```
 
 Then run `/mcp` in a session and sign in to TransGull.
-
-### Claude (web and desktop)
-
-Open **Customize → Plugins → Add marketplace**, enter `https://github.com/TransGull/transgull-plugin`, install **TransGull**, and connect it on the plugin's **Connectors** tab.
-
-### ChatGPT
-
-Once TransGull is listed in the ChatGPT apps directory, install it there and sign in when prompted.
 
 ### Gemini CLI
 
@@ -91,18 +85,46 @@ code --add-mcp '{"name":"transgull","type":"http","url":"https://us2.transgull.c
 
 Then complete the TransGull OAuth sign-in when VS Code prompts you.
 
-## Repository layout
+## Your first translation
 
-| Path | Used by |
+For example, to translate a Zoom meeting that's already underway between Japanese and English:
+
+1. **Ask your assistant.** Type "Have GullBot join this meeting now and translate between Japanese and English", then paste the meeting link.
+2. **Approve the action** if your assistant asks for permission.
+3. **Admit GullBot.** It asks to join as **TransGull Interpreter**. If the meeting has a waiting room, the host needs to admit it.
+4. **Open the viewing link.** GullBot posts a link in the meeting chat where participants follow the live translation. Your assistant shares the same link with you.
+
+GullBot leaves on its own when the meeting ends. To book ahead, replace "now" with a time, such as "tomorrow at 3 PM".
+
+## Things you can say
+
+| To | Say something like |
 | --- | --- |
-| `plugin.json`, `mcp.json` | [Agent Plugins](https://agent-plugins.org) clients such as ChatGPT/Codex; ChatGPT listing and review data live in `extensions["com.openai"]` |
-| `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.mcp.json` | Claude Code, Claude web and desktop |
-| `.cursor-plugin/plugin.json` | Cursor, with the MCP server inline and the `transgull-cursor` OAuth client ID |
-| `gemini-extension.json` | Gemini CLI, with the `transgull-gemini-cli` OAuth client ID |
-| `assets/icon.png` | 1024 × 1024 product icon shared by all manifests |
-| `scripts/check-manifests.py` | Checks that every manifest uses the same version and MCP endpoint |
+| Translate a meeting now | "Have GullBot join this meeting now and translate between Chinese and English: (meeting link)" |
+| Book ahead | "Schedule GullBot to join this Google Meet tomorrow at 3 PM Tokyo time, translating into Chinese, English, and Japanese: (meeting link)" |
+| Handle several languages | "Detect each speaker's language automatically and translate into Chinese and English" |
+| Check your bookings | "Which meeting translations do I have tomorrow?" |
+| Get the viewing link | "Send me the viewing link for the weekly meeting translation" |
+| Change the time | "Move the weekly meeting translation to 4 PM and keep everything else" |
+| Cancel | "Cancel the weekly meeting translation; GullBot doesn't need to join" |
 
-This repository contains no MCP server implementation and no credentials. Tool definitions come from the hosted server. Maintainers: see [CONTRIBUTING.md](CONTRIBUTING.md) for releases and packaging.
+## Tips
+
+- **Say the time zone** when you book, such as "Tokyo time", so GullBot joins at the right moment.
+- **Admit GullBot** from the waiting room, or translation can't start.
+- **Tell participants** that the meeting will be transcribed for translation. Meeting audio recordings are not retained.
+- **Only bookings that haven't started** can be changed or cancelled.
+- **To end a translation early,** end the meeting in Zoom, Google Meet, or Microsoft Teams; the translation ends with it. You can also stop it in the TransGull app. Your assistant can't remove GullBot once it has joined.
+- **If your balance runs low,** your assistant tells you and shares a link to add balance on the TransGull website.
+
+## Data and privacy
+
+- **Where data goes:** all requests go to `https://us2.transgull.com/mcp`, operated by Say Wow, Inc. The plugin doesn't contact any other service.
+- **What is sent:** the meeting link (including any passcode in it), the languages you choose, the scheduled time, and the IDs of translations you manage.
+- **In the meeting:** GullBot joins as **TransGull Interpreter**, transcribes the conversation to produce the translation, and posts a viewing link in the meeting chat. Meeting audio recordings are not retained. Tell participants that the meeting will be transcribed.
+- **Sign-in:** OAuth through TransGull. No API keys or passwords are stored in this repository or in your client configuration.
+
+See the [privacy policy](https://transgull.com/about/privacy) for collection, use, and retention details.
 
 ## Support and policies
 

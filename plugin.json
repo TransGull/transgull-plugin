@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "transgull",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Arrange live translation for Zoom, Google Meet, and Microsoft Teams meetings with GullBot, now or at a scheduled time.",
   "author": {
     "name": "Say Wow, Inc."
@@ -79,7 +79,7 @@
         "commerce_description": "Meeting translation consumes the connected TransGull personal account or workspace balance. Users purchase service credits on the TransGull website. The plugin does not process payments in ChatGPT; insufficient-balance errors provide the appropriate website recharge or workspace billing link."
       },
       "publication": {
-        "release_notes": "Clarifies Zoom, Google Meet, and Microsoft Teams translation support; introduces approved localized TransGull and GullBot naming; preserves TransGull Interpreter as the meeting participant name; adds scope-aware website recharge guidance for insufficient balance.",
+        "release_notes": "First release of TransGull for ChatGPT. Send GullBot to Zoom, Google Meet, or Microsoft Teams meetings for live translation in 47 languages, now or at a scheduled time. Check a translation's status, get the viewing link, and change or cancel scheduled translations from your conversation.",
         "countries": [],
         "translations": {
           "zh-CN": {
